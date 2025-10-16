@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickPay | Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="background"></div>
+
+    <div class="container">
+        <!-- LOGIN BOX -->
+        <div class="form-box" id="login-box">
+            <h1>Welcome to <span>QuickPay</span></h1>
+            <p class="tagline">Fast. Secure. Global Payments.</p>
+
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
+
+            <form action="{{ url_for('login') }}" method="POST">
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+
+            <p class="switch">Don’t have an account?
+                <a href="#" id="show-register">Register</a>
+            </p>
+        </div>
+
+        <!-- REGISTER BOX -->
+        <div class="form-box hidden" id="register-box">
+            <h1>Create Your <span>QuickPay</span> Account</h1>
+            <form action="{{ url_for('register') }}" method="POST">
+                <input type="text" name="new_username" placeholder="Username" required>
+                <input type="password" name="new_password" placeholder="Password" required>
+                <button type="submit">Register</button>
+            </form>
+
+            <p class="switch">Already have an account?
+                <a href="#" id="show-login">Login</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const loginBox = document.getElementById("login-box");
+        const registerBox = document.getElementById("register-box");
+        const showRegister = document.getElementById("show-register");
+        const showLogin = document.getElementById("show-login");
+
+        showRegister.addEventListener("click", () => {
+            loginBox.classList.add("hidden");
+            registerBox.classList.remove("hidden");
+        });
+
+        showLogin.addEventListener("click", () => {
+            registerBox.classList.add("hidden");
+            loginBox.classList.remove("hidden");
+        });
+    </script>
+</body>
+</html>
