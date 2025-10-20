@@ -1,265 +1,409 @@
-/* ===== Navbar ===== */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 60px;
-  background-color: #007bff;
-  color: white;
+/* Global Reset and Typography */
+
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
 }
 
-.navbar .logo {
-  font-size: 1.8em;
-  font-weight: bold;
+body {
+background-color: #f0f4f8; /* Light Blue Gray Background */
+color: #1a1a2e; /* Dark Blue Text */
+line-height: 1.6;
+font-size: 16px;
+font-family: 'Inter', sans-serif;
 }
 
-.navbar .tagline {
-  font-size: 0.9em;
-  margin-top: 2px;
+.container {
+max-width: 1200px;
+margin: 0 auto;
+padding: 20px;
 }
 
-.navbar nav a {
-  color: white;
-  text-decoration: none;
-  margin-left: 25px;
-  font-weight: 500;
+/* Flash Messages */
+.flash-messages {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+z-index: 1000;
 }
 
-.navbar nav a.active,
-.navbar nav a:hover {
-  text-decoration: underline;
+.flashes {
+list-style: none;
+padding: 10px;
+margin: 0;
 }
 
-/* ===== Hero Section ===== */
-.hero {
-  text-align: center;
-  padding: 100px 20px 60px;
-  background: linear-gradient(to right, #007bff, #00c6ff);
-  color: white;
+.flashes li {
+padding: 12px 20px;
+margin-bottom: 5px;
+border-radius: 8px;
+font-weight: bold;
+color: #fff;
+text-align: center;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.hero h1 {
-  font-size: 2.8em;
-  margin-bottom: 15px;
+.success { background-color: #4CAF50; } /* Green */
+.warning { background-color: #ff9800; } /* Orange */
+.danger { background-color: #f44336; }  /* Red */
+.info { background-color: #2196F3; }   /* Blue */
+
+/* --- Header (Shared) --- */
+header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+background: #1a1a2e; /* Primary Dark Color */
+color: #e6f7ff;
+padding: 15px 40px;
+border-radius: 12px;
+margin-bottom: 30px;
+box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.hero h1 span {
-  color: #ffe600;
+header h1 {
+font-size: 2.2em;
+font-weight: 700;
 }
 
-.hero p {
-  font-size: 1.2em;
-  margin-bottom: 30px;
+.logout-link {
+color: #58b6a3; /* Accent Teal */
+text-decoration: none;
+padding: 8px 15px;
+border: 1px solid #58b6a3;
+border-radius: 8px;
+transition: background-color 0.2s, color 0.2s;
 }
 
-.btn-primary {
-  background-color: white;
-  color: #007bff;
-  padding: 12px 30px;
-  border-radius: 25px;
-  text-decoration: none;
-  font-weight: bold;
-  transition: 0.3s ease;
+.logout-link:hover {
+background-color: #58b6a3;
+color: #1a1a2e;
 }
 
-.btn-primary:hover {
-  background-color: #e6e6e6;
+/* Input Styles (Shared) */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+select {
+padding: 12px;
+border: 1px solid #ddd;
+border-radius: 8px;
+font-size: 1em;
+width: 100%;
 }
 
-/* ===== Features Section ===== */
-.features {
-  padding: 80px 60px;
-  text-align: center;
-  background: #f8f9fa;
+/* Button Styles (Shared) */
+input[type="submit"] {
+background: #58b6a3; /* Accent Teal */
+color: #1a1a2e;
+border: none;
+cursor: pointer;
+padding: 12px;
+border-radius: 8px;
+font-weight: bold;
+transition: background-color 0.2s;
 }
 
-.features h2 {
-  color: #007bff;
-  font-size: 2em;
-  margin-bottom: 40px;
+input[type="submit"]:hover {
+background-color: #4da391;
 }
 
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 30px;
+/* --- Index Page (Login/Register) --- */
+.index-page main {
+display: flex;
+justify-content: center;
+gap: 50px;
+padding: 40px 0;
 }
 
-.feature-item {
-  background: white;
-  padding: 25px 20px;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease;
+.login-form {
+display: flex;
+gap: 10px;
 }
 
-.feature-item:hover {
-  transform: translateY(-8px);
+.welcome-section {
+max-width: 450px;
+text-align: left; /* Changed from center */
+padding: 30px;
+background: none; /* Changed to none */
+border-radius: 12px;
+box-shadow: none; /* Removed shadow */
+}
+.welcome-section h2 {
+    font-size: 3em;
+    font-weight: 800;
+    color: #1a1a2e;
+    line-height: 1.1;
+    margin-bottom: 15px;
+}
+.welcome-section p {
+    font-size: 1.3em;
+    color: #4a5568;
 }
 
-.feature-item h3 {
-  color: #007bff;
+
+.register-aside {
+padding: 40px; /* More padding */
+background: #e6f7ff; /* Very light blue background */
+border-radius: 15px;
+box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15); /* Stronger shadow */
+border: 1px solid #cceeff;
 }
 
-/* ===== Forms (Login & Register) ===== */
-.form-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 85vh;
+.register-form {
+display: flex;
+flex-direction: column;
+gap: 15px;
 }
 
-form {
-  background: rgba(255, 255, 255, 0.9);
-  padding: 40px 50px;
-  border-radius: 15px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-  width: 350px;
-  text-align: center;
+.register-aside h3 {
+color: #1a1a2e;
+font-size: 1.8em;
+font-weight: 600;
+border-bottom: 3px solid #58b6a3; /* Thicker accent line */
+padding-bottom: 8px;
+margin-bottom: 25px;
 }
 
-form h2 {
-  color: #007bff;
-  margin-bottom: 25px;
+/* Call-to-Action Button Style */
+.cta-button {
+background: #58b6a3;
+color: #1a1a2e;
+padding: 14px 20px; /* Larger button */
+border-radius: 10px;
+font-size: 1.1em;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.cta-button:hover {
+    background-color: #4da391;
+    transform: translateY(-2px);
 }
 
-.input-group {
-  margin-bottom: 15px;
-  text-align: left;
+
+/* --- Dashboard Page --- */
+
+.balance-container {
+text-align: center;
+margin-bottom: 40px;
 }
 
-.input-group label {
-  display: block;
-  font-size: 14px;
-  color: #333;
-  margin-bottom: 5px;
+.balance-card {
+display: inline-block;
+background: linear-gradient(135deg, #1a1a2e 0%, #3e4a61 100%);
+color: #e6f7ff;
+padding: 30px 50px;
+border-radius: 15px;
+box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
-.input-group input, textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+.balance-card h2 {
+font-size: 1.5em;
+margin-bottom: 10px;
+font-weight: 400;
 }
 
-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  width: 100%;
-  font-size: 16px;
+.balance-amount {
+font-size: 3em;
+font-weight: 700;
+margin-bottom: 5px;
+color: #58b6a3; /* Accent color for the balance */
 }
 
-button:hover {
-  background-color: #0056b3;
+.balance-label {
+font-size: 0.9em;
+opacity: 0.7;
 }
 
-.error {
-  color: red;
-  font-size: 14px;
-  margin-bottom: 10px;
+.dashboard-grid {
+display: grid;
+grid-template-columns: 1fr 2fr;
+gap: 30px;
+align-items: stretch;
 }
 
-.form-link {
-  margin-top: 15px;
-  font-size: 14px;
+.payment-section, .history-section {
+padding: 30px;
+border-radius: 12px;
+background: #ffffff;
+box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+border: 1px solid #e6e6e6; /* Subtle border */
 }
 
-/* ===== About Section ===== */
-.about-section {
-  padding: 100px 60px;
-  background: #f9f9f9;
+.payment-section h2, .history-section h2 {
+color: #1a1a2e;
+margin-bottom: 25px;
+border-bottom: 3px solid #58b6a3;
+padding-bottom: 5px;
+text-align: center;
 }
 
-.about-content {
-  max-width: 800px;
-  margin: auto;
-  background: white;
-  padding: 40px;
-  border-radius: 15px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+#transfer-form {
+display: flex;
+flex-direction: column;
+gap: 15px;
 }
 
-.about-content h1 {
-  color: #007bff;
+#transfer-form label {
+font-weight: bold;
+color: #333;
+margin-top: 5px;
 }
 
-/* ===== Contact Section ===== */
-.contact-section {
-  padding: 100px 60px;
-  background: #f8f9fa;
-  text-align: center;
+#transfer-form input[type="submit"] {
+margin-top: 10px;
 }
 
-.contact-content {
-  max-width: 600px;
-  margin: auto;
-  background: white;
-  padding: 40px;
-  border-radius: 15px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+/* Transaction History Table */
+.transaction-table {
+width: 100%;
+border-collapse: collapse;
+font-size: 0.95em;
 }
 
-textarea {
-  height: 100px;
-  resize: none;
+.transaction-table th, .transaction-table td {
+padding: 12px 15px;
+text-align: left;
+border-bottom: 1px solid #eee;
 }
 
-/* ===== Footer ===== */
-.footer {
-  text-align: center;
-  padding: 20px 0;
-  background-color: #007bff;
-  color: white;
-  font-size: 0.9em;
-}
-/* ===== Dashboard ===== */
-.dashboard {
-  padding: 80px 60px;
-  text-align: center;
+.transaction-table th {
+background-color: #f8f8f8;
+color: #1a1a2e;
+font-weight: 700;
 }
 
-.balance-box {
-  background: #007bff;
-  color: white;
-  padding: 20px;
-  border-radius: 15px;
-  width: 300px;
-  margin: 20px auto;
+.transaction-table tr:hover {
+background-color: #fcfcfc;
 }
 
-.transfer-box {
-  background: #f8f9fa;
-  padding: 30px;
-  border-radius: 15px;
-  margin: 30px auto;
-  width: 400px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+.amount-sent { color: #f44336; font-weight: bold; }
+.amount-received { color: #4CAF50; font-weight: bold; }
+
+.type-indicator {
+padding: 4px 8px;
+border-radius: 5px;
+font-size: 0.8em;
+font-weight: 700;
+}
+.type-sent { background-color: #fde8e8; color: #f44336; }
+.type-received { background-color: #e8f5e9; color: #4CAF50; }
+
+.no-history {
+text-align: center;
+color: #666;
+padding: 30px;
+background: #fcfcfc;
+border-radius: 8px;
 }
 
-.transactions {
-  margin-top: 50px;
+/* --- Footer (Global) --- */
+.footer-global {
+    background: #1a1a2e; /* Dark Blue from your header */
+    color: #b0c4de; /* Light text */
+    padding: 20px 0;
+    margin-top: 40px; /* Space above the footer */
+    text-align: center;
+    font-size: 0.9em;
+    width: 100%;
 }
 
-.transaction-columns {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  text-align: left;
+.footer-global a {
+    color: #58b6a3; /* Accent Teal */
+    text-decoration: none;
+    margin: 0 5px;
 }
 
-.transaction-columns ul {
-  list-style: none;
-  padding: 0;
+.footer-global a:hover {
+    text-decoration: underline;
 }
 
-.transaction-columns li {
-  background: white;
-  padding: 10px 15px;
-  margin-bottom: 8px;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+/* Mobile Responsiveness */
+@media (max-width: 900px) {
+.dashboard-grid {
+grid-template-columns: 1fr;
+}
+}
+
+@media (max-width: 600px) {
+header {
+flex-direction: column;
+gap: 15px;
+padding: 20px;
+border-radius: 0;
+}
+
+.login-form {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    padding: 0;
+    box-shadow: none;
+    background: transparent;
+}
+
+.index-page main {
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+.register-aside, .welcome-section {
+    width: 100%;
+    max-width: 100%;
+    padding: 20px;
+}
+
+.welcome-section h2 {
+    font-size: 2.5em;
+}
+.welcome-section p {
+    font-size: 1.1em;
+}
+
+
+.balance-card {
+    padding: 20px 30px;
+}
+.balance-amount {
+    font-size: 2.5em;
+}
+
+/* Mobile Table Styles (Data labels added to dashboard.html) */
+.transaction-table, .transaction-table thead, .transaction-table th {
+    display: block;
+    width: 100%;
+}
+
+.transaction-table thead { display: none; }
+
+.transaction-table tr {
+    margin-bottom: 15px;
+    display: block;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.transaction-table td {
+    display: block;
+    text-align: right;
+    border-bottom: 1px dotted #eee;
+    position: relative;
+    padding-left: 50%;
+}
+
+.transaction-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    width: 45%;
+    padding-left: 15px;
+    font-weight: bold;
+    text-align: left;
+    text-transform: uppercase;
+    font-size: 0.8em;
+    color: #555;
+}
 }

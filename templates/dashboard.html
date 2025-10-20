@@ -1,19 +1,77 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Dashboard | QuickPay</title>
-</head>
-<body>
-  <h2>Welcome, {{ user.username }}</h2>
-  <p>Current Balance: ${{ "%.2f"|format(user.balance) }}</p>
+{% extends "base.html" %}
 
-  <form method="POST" action="{{ url_for('send') }}">
-    <input type="text" name="recipient" placeholder="Recipient Username" required><br>
-    <input type="number" name="amount" step="0.01" placeholder="Amount" required><br>
-    <button type="submit">Send Money</button>
-  </form>
+{% block head %}
+<title>Dashboard - QuickPay</title>
+{% endblock %}
 
-  <p><a href="{{ url_for('transactions') }}">View All Transactions</a></p>
-  <p><a href="{{ url_for('logout') }}">Logout</a></p>
-</body>
-</html>
+{% block body %}
+
+<div class="container dashboard-page">
+<header>
+<h1>QuickPay</h1>
+<a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+</header>
+
+<div class="balance-container">
+    <div class="balance-card">
+        <h2>Welcome, {{ user.name }}</h2>
+        <p class="balance-amount">${{ "{:,.2f}".format(user.balance) }}</p>
+        <p class="balance-label">Current Balance</p>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+
+    <section class="payment-section">
+        <h2>Send Money</h2>
+        <form action="{{ url_for('transfer') }}" method="post" id="transfer-form">
+            <label for="receiver_id">Recipient:</label>
+            <select name="receiver_id" id="receiver_id" required>
+                <option value="" disabled selected>Select a user to pay</option>
+                {% for other_user in other_users %}
+                    <option value="{{ other_user.id }}">{{ other_user.name }} ({{ other_user.email }})</option>
+                {% else %}
+                    <option value="" disabled>No other users registered yet.</option>
+                {% endfor %}
+            </select>
+
+            <label for="amount">Amount ($):</label>
+            <input type="number" name="amount" id="amount" step="0.01" min="0.01" placeholder="e.g., 50.00" required>
+
+            <input type="submit" value="Transfer Funds">
+        </form>
+    </section>
+
+    <section class="history-section">
+        <h2>Transaction History</h2>
+        {% if history %}
+            <table class="transaction-table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Name</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in history %}
+                        {% set is_sent = t.type == 'Sent' %}
+                        <tr class="transaction-{{ t.type | lower }}">
+                            <td data-label="Type"><span class="type-indicator type-{{ t.type | lower }}">{{ t.type }}</span></td>
+                            <td data-label="Amount" class="amount-{{ t.type | lower }}">{{ "-" if is_sent else "+" }}${{ "{:,.2f}".format(t.amount) }}</td>
+                            <td data-label="{{ 'To' if is_sent else 'From' }}">{{ t.receiver_name if is_sent else t.sender_name }}</td>
+                            <td data-label="Date">{{ t.timestamp.split(' ')[0] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-history">No transactions yet.</p>
+        {% endif %}
+    </section>
+</div>
+
+
+</div>
+{% endblock %}

@@ -1,158 +1,253 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+from flask import Flask, render_template, request, redirect, session, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
+import sqlite3
+import time
+from models.user import User
+from models.transaction import Transaction
+from utils.dbconnection import DatabaseConnection
+
+# Import datetime for the footer year in the template (optional, but good practice)
 from datetime import datetime
-import os
 
 app = Flask(__name__)
-app.secret_key = "quickpay_secret_key"
+# IMPORTANT: Change this secret key in a production environment
+app.secret_key = 'quickpay_secret_key_change_me'
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quickpay.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+# --- Database Configuration ---
+DB_PATH = 'quickpay.db'
 
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), unique=True, nullable=False)
-    password_hash = db.Column(db.String(150), nullable=False)
-    balance = db.Column(db.Float, default=100.0)
+def init_db():
+    """Initializes the SQLite database tables (users and transactions)."""
+    print("Attempting to initialize database tables...")
+    try:
+        with DatabaseConnection(DB_PATH) as db:
+            # Users table: Added BALANCE column
+            db.execute_update("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    email TEXT UNIQUE NOT NULL,
+                    password TEXT NOT NULL,
+                    balance REAL DEFAULT 1000.00,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            # Transactions table: Replaced 'posts' with 'transactions'
+            db.execute_update("""
+                CREATE TABLE IF NOT EXISTS transactions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    sender_id INTEGER NOT NULL,
+                    receiver_id INTEGER NOT NULL,
+                    amount REAL NOT NULL,
+                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    status TEXT NOT NULL,
+                    FOREIGN KEY (sender_id) REFERENCES users (id) ON DELETE CASCADE,
+                    FOREIGN KEY (receiver_id) REFERENCES users (id) ON DELETE CASCADE
+                );
+            """)
+        print("QuickPay database tables checked/created successfully.")
+    except sqlite3.Error as e:
+        print(f"Database initialization FAILED: {e}")
 
-    sent_transactions = db.relationship('Transaction', foreign_keys='Transaction.sender_id', backref='sender', lazy=True)
-    received_transactions = db.relationship('Transaction', foreign_keys='Transaction.receiver_id', backref='receiver', lazy=True)
 
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+# Run database initialization when the application context is ready
+with app.app_context():
+    init_db()
 
 
-class Transaction(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    amount = db.Column(db.Float, nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+# --- Application Routes ---
 
+# Inject current time into all templates for footer year
+@app.context_processor
+def inject_now():
+    """Makes the current datetime available to all templates."""
+    return {'now': datetime.utcnow()}
 
 @app.route('/')
-def home():
-    return render_template('home.html')
+def index():
+    """Renders the main page, redirects to dashboard if logged in."""
+    if 'user' in session:
+        return redirect(url_for('dashboard'))
+    return render_template('index.html')
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    """Handles new user registration."""
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        fullname = request.form['fullname']
+        email = request.form['new_email']
+        password = request.form['new_password']
 
-        if User.query.filter_by(username=username).first():
-            flash("Username already exists!")
-            return redirect(url_for('register'))
+        if len(password) < 6:
+            flash("Password must be at least 6 characters long.", "danger")
+            return redirect(url_for('index'))
 
-        new_user = User(username=username)
-        new_user.set_password(password)
-        db.session.add(new_user)
-        db.session.commit()
+        hashed_pw = generate_password_hash(password)
 
-        flash("Registration successful! Please log in.")
-        return redirect(url_for('login'))
+        try:
+            with DatabaseConnection(DB_PATH) as db:
+                user_model = User(db)
 
-    return render_template('register.html')
+                if user_model.get_user_by_email(email):
+                    flash("Email already registered. Please log in.", "warning")
+                    return redirect(url_for('index'))
+                else:
+                    user_model.create_user(fullname, email, hashed_pw)
+
+            flash("Registration successful! Initial balance: $1000.00. You can now log in.", "success")
+            return redirect(url_for('index'))
+
+        except sqlite3.Error as e:
+            flash(f"Database Error: Could not register user. {e}", "danger")
+            return redirect(url_for('index'))
+
+    return redirect(url_for('index'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """Handles user login."""
     if request.method == 'POST':
-        username = request.form['username']
+        email = request.form['email']
         password = request.form['password']
 
-        user = User.query.filter_by(username=username).first()
-        if user and user.check_password(password):
-            session['username'] = user.username
-            flash("Login successful!")
-            return redirect(url_for('dashboard'))
-        else:
-            flash("Invalid username or password.")
-            return redirect(url_for('login'))
+        try:
+            with DatabaseConnection(DB_PATH) as db:
+                user_model = User(db)
+                user = user_model.get_user_by_email(email)
 
-    return render_template('login.html')
+                if user and check_password_hash(user['password'], password):
+                    # Store only non-sensitive data in the session
+                    session['user'] = {'name': user['name'], 'id': user['id']}
+                    flash(f"Welcome back, {user['name']}!", "success")
+                    return redirect(url_for('dashboard'))
+                else:
+                    flash("Invalid email or password", "danger")
+                    return redirect(url_for('index'))
 
+        except sqlite3.Error as e:
+            flash(f"Database Error during login. {e}", "danger")
+            return redirect(url_for('index'))
 
-@app.route('/dashboard')
-def dashboard():
-    if 'username' not in session:
-        flash("Please log in first.")
-        return redirect(url_for('login'))
-
-    user = User.query.filter_by(username=session['username']).first()
-    sent = Transaction.query.filter_by(sender_id=user.id).all()
-    received = Transaction.query.filter_by(receiver_id=user.id).all()
-
-    return render_template('dashboard.html', user=user, sent=sent, received=received)
-
-
-@app.route('/send', methods=['POST'])
-def send():
-    if 'username' not in session:
-        flash("Please log in first.")
-        return redirect(url_for('login'))
-
-    sender = User.query.filter_by(username=session['username']).first()
-    recipient_username = request.form['recipient']
-    amount = float(request.form['amount'])
-
-    receiver = User.query.filter_by(username=recipient_username).first()
-
-    if not receiver:
-        flash("Recipient not found.")
-        return redirect(url_for('dashboard'))
-
-    if amount <= 0:
-        flash("Amount must be greater than zero.")
-        return redirect(url_for('dashboard'))
-
-    if sender.balance < amount:
-        flash("Insufficient balance.")
-        return redirect(url_for('dashboard'))
-
-    sender.balance -= amount
-    receiver.balance += amount
-
-    transaction = Transaction(sender_id=sender.id, receiver_id=receiver.id, amount=amount)
-    db.session.add(transaction)
-    db.session.commit()
-
-    flash(f"Sent ${amount:.2f} to {receiver.username}")
-    return redirect(url_for('dashboard'))
-
-
-@app.route('/transactions')
-def transactions():
-    if 'username' not in session:
-        flash("Please log in first.")
-        return redirect(url_for('login'))
-
-    user = User.query.filter_by(username=session['username']).first()
-    sent = Transaction.query.filter_by(sender_id=user.id).all()
-    received = Transaction.query.filter_by(receiver_id=user.id).all()
-
-    return render_template('transactions.html', user=user, sent=sent, received=received)
+    return redirect(url_for('index'))
 
 
 @app.route('/logout')
 def logout():
-    session.pop('username', None)
-    flash("You have been logged out.")
-    return redirect(url_for('home'))
+    """Logs the user out."""
+    session.pop('user', None)
+    session.pop('_flashes', None)
+    flash("You have been logged out.", "info")
+    return redirect(url_for('index'))
+
+
+@app.route('/dashboard')
+def dashboard():
+    """Displays the user's balance, payment form, and transaction history."""
+    if 'user' not in session:
+        flash("You must be logged in to access QuickPay.", "warning")
+        return redirect(url_for('index'))
+
+    user_id = session['user']['id']
+    try:
+        with DatabaseConnection(DB_PATH) as db:
+            user_model = User(db)
+            transaction_model = Transaction(db)
+
+            # 1. Get current user's full data (including balance)
+            current_user_data = user_model.get_user_by_id(user_id)
+            if not current_user_data:
+                session.pop('user', None)
+                flash("User data not found. Please log in again.", "danger")
+                return redirect(url_for('index'))
+
+            # 2. Get list of other users for payment dropdown
+            other_users = user_model.get_all_users_except_self(user_id)
+
+            # 3. Get transaction history
+            history = transaction_model.get_transactions_for_user(user_id)
+
+        return render_template(
+            'dashboard.html',
+            user=current_user_data,
+            other_users=other_users,
+            history=history
+        )
+
+    except sqlite3.Error as e:
+        flash(f"Database Error: Could not load dashboard data. {e}", "danger")
+        return render_template('dashboard.html', user={'name': session['user']['name'], 'balance': 0.00},
+                               other_users=[], history=[])
+
+
+@app.route('/transfer', methods=['POST'])
+def transfer():
+    """Handles the peer-to-peer money transfer."""
+    if 'user' not in session:
+        return redirect(url_for('index'))
+
+    sender_id = session['user']['id']
+    receiver_id = request.form.get('receiver_id', type=int)
+    amount_str = request.form.get('amount')
+
+    # Basic input validation
+    if not receiver_id or not amount_str:
+        flash("Missing receiver or amount.", "danger")
+        return redirect(url_for('dashboard'))
+
+    try:
+        amount = float(amount_str)
+        if amount <= 0:
+            flash("Amount must be positive.", "danger")
+            return redirect(url_for('dashboard'))
+    except ValueError:
+        flash("Invalid amount entered.", "danger")
+        return redirect(url_for('dashboard'))
+
+    # Start the atomic transaction block
+    try:
+        with DatabaseConnection(DB_PATH) as db:
+            user_model = User(db)
+            transaction_model = Transaction(db)
+
+            sender = user_model.get_user_by_id(sender_id)
+            receiver = user_model.get_user_by_id(receiver_id)
+
+            if not sender or not receiver:
+                flash("Invalid sender or receiver ID.", "danger")
+                # This rollback is implicit via the context manager if an exception is raised
+                raise Exception("Invalid User ID in transfer attempt.")
+
+            if sender['balance'] < amount:
+                flash("Insufficient funds for this transfer.", "danger")
+                # Rollback/Prevent commit
+                return redirect(url_for('dashboard'))
+
+                # 1. Update Sender's Balance (Debit)
+            new_sender_balance = sender['balance'] - amount
+            user_model.update_balance(sender_id, new_sender_balance)
+
+            # 2. Update Receiver's Balance (Credit)
+            new_receiver_balance = receiver['balance'] + amount
+            user_model.update_balance(receiver_id, new_receiver_balance)
+
+            # 3. Record the Transaction
+            transaction_model.record_transaction(sender_id, receiver_id, amount)
+
+        # If we reach here, the context manager commits all changes.
+        flash(f"Successfully sent ${amount:.2f} to {receiver['name']}!", "success")
+
+    except sqlite3.Error as e:
+        # If any DB operation fails, the context manager rolls back.
+        flash(f"Transaction failed due to a database error. Funds safe. Error: {e}", "danger")
+    except Exception as e:
+        # Catch custom exception for invalid user IDs, etc.
+        flash(f"Transaction failed: {e}", "danger")
+
+    return redirect(url_for('dashboard'))
 
 
 if __name__ == '__main__':
-    if not os.path.exists('quickpay.db'):
-        with app.app_context():
-            db.create_all()
     app.run(debug=True)

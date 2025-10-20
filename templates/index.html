@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>QuickPay - Peer-to-Peer Payments</title>
+{% endblock %}
+
+{% block body %}
+
+<div class="container index-page">
+<header>
+<h1>QuickPay</h1>
+<form action="{{ url_for('login') }}" method="post" id="login-form" class="login-form">
+<input type="email" name="email" placeholder="Email" required>
+<input type="password" name="password" placeholder="Password" required>
+<input type="submit" value="Login">
+</form>
+</header>
+<main>
+<section class="welcome-section">
+<h2>Fast, Simple, Secure Payments.</h2>
+<p>Transfer money instantly to friends and family. Every new account starts with $1000.00.</p>
+</section>
+<aside class="register-aside">
+<form action="{{ url_for('register') }}" method="post" class="register-form">
+<h3>Create Account</h3>
+<input type="text" name="fullname" id="name" placeholder="Full Name" required>
+<input type="email" name="new_email" placeholder="Email" required>
+<input type="password" name="new_password" placeholder="Password (min 6 chars)" required>
+<input type="submit" value="Sign Up" class="cta-button">
+</form>
+</aside>
+</main>
+</div>
+{% endblock %}

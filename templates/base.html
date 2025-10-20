@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+<style>
+/* Custom font import and fallback settings (FIXED URL) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+.font-['Inter'] { font-family: 'Inter', sans-serif; }
+</style>
+{% block head %}
+<title>QuickPay App</title>
+{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+<div class="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+</div>
+
+<div class="container mx-auto flex-grow">
+{% block body %}
+{% endblock %}
+</div>
+
+<footer class="footer-global mt-auto">
+    <div class="container mx-auto">
+        <p>&copy; {{ now.year if now else 2025 }} QuickPay. All rights reserved. | <a href="#">Terms</a> | <a href="#">Privacy</a></p>
+    </div>
+</footer>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    });
+</script>
+
+</body>
+</html>
