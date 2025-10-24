@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>Welcome - QuickPay</title>
+{% endblock %}
+
+{% block body %}
+
+<div class="container dashboard-page">
+
+    <div class="balance-container">
+        <div class="balance-card">
+            <h2>Welcome, {{ user.name }}</h2>
+            <p class="balance-amount">${{ "{:,.2f}".format(user.balance) }}</p>
+            <p class="balance-label">Current Balance</p>
+            
+            <div class="verification-status-bar status-{{ user.verification_status | lower }}">
+                Verification Status: 
+                <strong>{{ user.verification_status }}</strong>
+            </div>
+            {% if user.verification_status == 'Unverified' %}
+                <a href="{{ url_for('verify') }}" class="verify-link">Verify Account Now</a>
+            {% else %}
+                <span class="text-xs opacity-75 mt-1 block">Full transfer limits unlocked.</span>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <section class="quick-actions page-content-box">
+        <h2>Quick Actions</h2>
+        <div class="feature-grid">
+            <a href="{{ url_for('send_money') }}" class="feature-card action-card">
+                <i data-lucide="send" class="feature-icon"></i>
+                <h4>Send Money</h4>
+                <p>Transfer funds to another user instantly.</p>
+            </a>
+            <a href="{{ url_for('transaction_history') }}" class="feature-card action-card">
+                <i data-lucide="list-ordered" class="feature-icon"></i>
+                <h4>View History</h4>
+                <p>Check all your past transactions.</p>
+            </a>
+            <a href="{{ url_for('verify') }}" class="feature-card action-card">
+                <i data-lucide="scan" class="feature-icon"></i>
+                <h4>Verify ID</h4>
+                <p>Check your verification status.</p>
+            </a>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

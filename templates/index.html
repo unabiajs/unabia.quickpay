@@ -6,29 +6,43 @@
 
 {% block body %}
 
-<div class="container index-page">
-<header>
-<h1>QuickPay</h1>
-<form action="{{ url_for('login') }}" method="post" id="login-form" class="login-form">
-<input type="email" name="email" placeholder="Email" required>
-<input type="password" name="password" placeholder="Password" required>
-<input type="submit" value="Login">
-</form>
-</header>
-<main>
-<section class="welcome-section">
-<h2>Fast, Simple, Secure Payments.</h2>
-<p>Transfer money instantly to friends and family. Every new account starts with $1000.00.</p>
-</section>
-<aside class="register-aside">
-<form action="{{ url_for('register') }}" method="post" class="register-form">
-<h3>Create Account</h3>
-<input type="text" name="fullname" id="name" placeholder="Full Name" required>
-<input type="email" name="new_email" placeholder="Email" required>
-<input type="password" name="new_password" placeholder="Password (min 6 chars)" required>
-<input type="submit" value="Sign Up" class="cta-button">
-</form>
-</aside>
-</main>
+<div class="container landing-page">
+    <div class="page-content-box">
+        <section class="hero-section">
+            <div class="hero-content">
+                <h2>The Future of Instant Payments.</h2>
+                <p>Transfer money instantly to friends and family with zero hassle. QuickPay is fast, simple, and secure.</p>
+                <div class="cta-group">
+                    <a href="{{ url_for('register') }}" class="btn cta-register">Get Started (Free $1000)</a>
+                    <a href="{{ url_for('login') }}" class="btn cta-login">Existing User Login</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <i data-lucide="zap" class="hero-icon"></i>
+                <p>Instant Transactions</p>
+            </div>
+        </section>
+
+        <section class="features-section">
+            <h3>Why QuickPay?</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <i data-lucide="shield-check" class="feature-icon"></i>
+                    <h4>Secure</h4>
+                    <p>Industry-leading encryption protects your funds and data.</p>
+                </div>
+                <div class="feature-card">
+                    <i data-lucide="rocket" class="feature-icon"></i>
+                    <h4>Instant</h4>
+                    <p>Money moves in real-time, 24/7. No waiting days for transfers.</p>
+                </div>
+                <div class="feature-card">
+                    <i data-lucide="users" class="feature-icon"></i>
+                    <h4>P2P Ready</h4>
+                    <p>Easily send payments to anyone with a QuickPay account.</p>
+                </div>
+            </div>
+        </section>
+    </div>
 </div>
 {% endblock %}

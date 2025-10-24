@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>Register - QuickPay</title>
+{% endblock %}
+
+{% block body %}
+
+<div class="container auth-page">
+    <div class="auth-box register-box page-content-box">
+        <h2>Join QuickPay</h2>
+        <p>Create your free account and receive a $1000.00 starting balance!</p>
+
+        <form action="{{ url_for('register') }}" method="post" class="auth-form">
+            <label for="fullname">Full Name</label>
+            <input type="text" name="fullname" id="fullname" placeholder="Your full legal name" required>
+
+            <label for="new_email">Email Address</label>
+            <input type="email" name="new_email" id="new_email" placeholder="Your email address" required>
+
+            <label for="new_password">Password</label>
+            <input type="password" name="new_password" id="new_password" placeholder="Minimum 6 characters" required>
+            
+            <input type="submit" value="Create Account" class="cta-button">
+        </form>
+
+        <p class="auth-footer">
+            Already have an account? <a href="{{ url_for('login') }}">Log in here</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>Send Money - QuickPay</title>
+{% endblock %}
+
+{% block body %}
+
+<div class="container dashboard-page">
+    <div class="dashboard-grid single-column">
+        <section class="payment-section page-content-box">
+            <h2>Send Money</h2>
+            <p class="text-center current-balance-note">Your current balance: <strong>${{ "{:,.2f}".format(user.balance) }}</strong></p>
+
+            <form action="{{ url_for('transfer') }}" method="post" id="transfer-form">
+                <label for="receiver_id">Recipient:</label>
+                <select name="receiver_id" id="receiver_id" required>
+                    <option value="" disabled selected>Select a user to pay</option>
+                    {% for other_user in other_users %}
+                        <option value="{{ other_user.id }}">{{ other_user.name }} ({{ other_user.email }})</option>
+                    {% else %}
+                        <option value="" disabled>No other users registered yet.</option>
+                    {% endfor %}
+                </select>
+
+                <label for="amount">Amount ($):</label>
+                <input type="number" name="amount" id="amount" step="0.01" min="0.01" placeholder="e.g., 50.00" required>
+
+                <input type="submit" value="Transfer Funds">
+            </form>
+        </section>
+    </div>
+</div>
+{% endblock %}

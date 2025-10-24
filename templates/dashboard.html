@@ -17,6 +17,19 @@
         <h2>Welcome, {{ user.name }}</h2>
         <p class="balance-amount">${{ "{:,.2f}".format(user.balance) }}</p>
         <p class="balance-label">Current Balance</p>
+
+        <!-- VERIFICATION STATUS BAR -->
+        <div class="verification-status-bar status-{{ user.verification_status | lower }}">
+            Verification Status:
+            <strong>{{ user.verification_status }}</strong>
+        </div>
+        {% if user.verification_status == 'Unverified' %}
+            <a href="{{ url_for('verify') }}" class="verify-link">Verify Account Now</a>
+        {% elif user.verification_status == 'Submitted' %}
+            <span class="verify-link-submitted">Review in Progress...</span>
+        {% endif %}
+        <!-- END VERIFICATION STATUS BAR -->
+
     </div>
 </div>
 
@@ -24,6 +37,7 @@
 
     <section class="payment-section">
         <h2>Send Money</h2>
+        <!-- Payment Form -->
         <form action="{{ url_for('transfer') }}" method="post" id="transfer-form">
             <label for="receiver_id">Recipient:</label>
             <select name="receiver_id" id="receiver_id" required>

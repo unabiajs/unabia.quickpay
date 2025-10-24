@@ -7,7 +7,6 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 <style>
-/* Custom font import and fallback settings (FIXED URL) */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 .font-['Inter'] { font-family: 'Inter', sans-serif; }
 </style>
@@ -30,6 +29,21 @@
 </div>
 
 <div class="container mx-auto flex-grow">
+    <header class="main-header">
+        <h1><a href="{{ url_for('index') }}">QuickPay</a></h1>
+        <nav>
+            {% if 'user' in session %}
+                <a href="{{ url_for('welcome') }}" class="nav-link">Welcome</a>
+                <a href="{{ url_for('send_money') }}" class="nav-link">Send Money</a>
+                <a href="{{ url_for('transaction_history') }}" class="nav-link">History</a>
+                <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="nav-link">Login</a>
+                <a href="{{ url_for('register') }}" class="register-link">Register</a>
+            {% endif %}
+        </nav>
+    </header>
+
 {% block body %}
 {% endblock %}
 </div>
@@ -39,6 +53,7 @@
         <p>&copy; {{ now.year if now else 2025 }} QuickPay. All rights reserved. | <a href="#">Terms</a> | <a href="#">Privacy</a></p>
     </div>
 </footer>
+
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         if (typeof lucide !== 'undefined') {

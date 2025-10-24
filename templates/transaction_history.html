@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>Transaction History - QuickPay</title>
+{% endblock %}
+
+{% block body %}
+
+<div class="container dashboard-page">
+    <div class="dashboard-grid single-column">
+        <section class="history-section page-content-box">
+            <h2>Transaction History</h2>
+            {% if history %}
+                <table class="transaction-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Name</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in history %}
+                            {% set is_sent = t.type == 'Sent' %}
+                            <tr class="transaction-{{ t.type | lower }}">
+                                <td data-label="Type"><span class="type-indicator type-{{ t.type | lower }}">{{ t.type }}</span></td>
+                                <td data-label="Amount" class="amount-{{ t.type | lower }}">{{ "-" if is_sent else "+" }}${{ "{:,.2f}".format(t.amount) }}</td>
+                                <td data-label="{{ 'To' if is_sent else 'From' }}">{{ t.receiver_name if is_sent else t.sender_name }}</td>
+                                <td data-label="Date">{{ t.timestamp.split(' ')[0] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="no-history">No transactions yet.</p>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}

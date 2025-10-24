@@ -36,5 +36,4 @@ class Transaction:
             WHERE t.sender_id = ? OR t.receiver_id = ?
             ORDER BY t.timestamp DESC
         """
-        # The user_id is passed three times for the CASE statement and the WHERE clause.
         return self.db.execute_query(query, (user_id, user_id, user_id))
